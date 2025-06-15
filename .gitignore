@@ -1,0 +1,8 @@
+/front/node_modules/
+/.idea/
+/.vscode/
+/.xcodemap/
+/src/target/
+/target/
+/uploads/
+/.idea/
