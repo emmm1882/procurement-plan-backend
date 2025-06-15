@@ -31,7 +31,7 @@
           <el-input v-model="form.creator" placeholder="自动带入/可编辑" />
         </el-form-item>
         <el-form-item label="编制时间">
-          <el-date-picker v-model="form.createTime" type="date" placeholder="自动带入" style="width: 100%;" />
+          <el-date-picker v-model="form.createTime" type="date" value-format="yyyy-MM-dd" format="yyyy-MM-dd" placeholder="自动带入" style="width: 100%;" />
         </el-form-item>
         <el-form-item label="附件">
           <el-upload
@@ -85,7 +85,7 @@
             </el-table-column>
             <el-table-column label="计划采购时间" prop="planTime" width="150">
               <template slot-scope="scope">
-                <el-date-picker v-model="scope.row.planTime" type="date" placeholder="选择日期" value-format="yyyy-MM-dd" style="width:100%" />
+                <el-date-picker v-model="scope.row.planTime" type="date" value-format="yyyy-MM-dd" format="yyyy-MM-dd" placeholder="选择日期" style="width:100%" />
               </template>
             </el-table-column>
             <el-table-column label="资金来源" prop="fundSource" width="120">
@@ -277,19 +277,15 @@ export default {
           return
         }
         let createTime = this.form.createTime
-        if (createTime) {
-          if (typeof createTime !== 'string') {
-            createTime = moment(createTime).format('YYYY-MM-DD HH:mm:ss')
-          } else if (/^\d{4}-\d{2}-\d{2}$/.test(createTime)) {
-            createTime = createTime + ' 00:00:00'
-          }
+        if (createTime && /^\d{4}-\d{2}-\d{2}$/.test(createTime)) {
+          createTime = createTime + ' 00:00:00'
         }
         const details = this.form.details.map(d => ({
           itemName: d.itemName || d.name || '',
           category: d.category || '',
           method: d.method || '',
           estimate: d.estimate || d.estimatedAmount || 0,
-          planTime: d.planTime || d.plannedTime || '',
+          planTime: d.planTime && /^\d{4}-\d{2}-\d{2}$/.test(d.planTime) ? d.planTime + ' 00:00:00' : d.planTime || d.plannedTime || '',
           fundSource: d.fundSource || '',
           remark: d.remark || ''
         }))

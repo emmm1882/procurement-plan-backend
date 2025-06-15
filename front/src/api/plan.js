@@ -31,10 +31,10 @@ export function addPlan(data) {
 }
 
 // 修改采购计划
-export function updatePlan(id, data) {
+export function updatePlan(data) {
     return request({
-        url: '/api/procurement-plans',
-        method: 'put',
+        url: '/api/procurement-plans/update',
+        method: 'post',
         data,
         headers: {
             'Content-Type': 'application/json'

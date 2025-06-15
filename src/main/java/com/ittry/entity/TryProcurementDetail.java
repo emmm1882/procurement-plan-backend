@@ -8,6 +8,8 @@ import javax.validation.constraints.Size;
 import javax.validation.constraints.Min;
 import java.util.Date;
 import com.alibaba.excel.annotation.ExcelProperty;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.alibaba.excel.annotation.format.DateTimeFormat;
 
 @Data
 @TableName("try_procurement_detail")
@@ -43,6 +45,8 @@ public class TryProcurementDetail {
     
     @NotNull(message = "计划采购时间不能为空")
     @ExcelProperty("计划采购时间")
+    @DateTimeFormat("yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date planTime;
     
     @NotBlank(message = "资金来源不能为空")

@@ -5,6 +5,7 @@ import lombok.Data;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.util.Date;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Data
 @TableName("try_procurement_plan")
@@ -28,6 +29,7 @@ public class TryProcurementPlan {
     @Size(max = 100, message = "编制人长度不能超过100个字符")
     private String creator;
     
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date createTime;
     
     @Size(max = 500, message = "附件路径长度不能超过500个字符")

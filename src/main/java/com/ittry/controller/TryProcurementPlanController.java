@@ -150,33 +150,44 @@ public class TryProcurementPlanController {
 
     @PutMapping
     public Object update(@RequestBody Map<String, Object> param) {
-        // 1. 解析主表
-        TryProcurementPlan plan = new TryProcurementPlan();
-        plan.setId((String) param.get("id"));
-        plan.setPlanName((String) param.get("planName"));
-        plan.setYear((String) param.get("year"));
-        plan.setCompany((String) param.get("company"));
-        plan.setDept((String) param.get("dept"));
-        plan.setCreator((String) param.get("creator"));
-        plan.setAttachment((String) param.get("attachment"));
-        plan.setStatus(param.get("status") != null ? mapStatusToDb(param.get("status").toString()) : "SAVED");
-        plan.setCreateUserId((String) param.get("createUserId"));
-        plan.setCreateDate(param.get("createDate") != null ? new Date() : null);
-        plan.setUpdateUserId((String) param.get("updateUserId"));
-        plan.setUpdateDate(param.get("updateDate") != null ? new Date() : null);
-        boolean updated = planService.updateById(plan);
-        // 2. 解析明细并保存
+        String id = (String) param.get("id");
+        TryProcurementPlan plan = planService.getById(id);
+        if (plan == null) {
+            Map<String, Object> resp = new HashMap<>();
+            resp.put("code", 1);
+            resp.put("msg", "数据不存在");
+            return resp;
+        }
+        if (param.get("planName") != null) plan.setPlanName((String) param.get("planName"));
+        if (param.get("year") != null) plan.setYear((String) param.get("year"));
+        if (param.get("company") != null) plan.setCompany((String) param.get("company"));
+        if (param.get("dept") != null) plan.setDept((String) param.get("dept"));
+        if (param.get("creator") != null) plan.setCreator((String) param.get("creator"));
+        if (param.get("attachment") != null) plan.setAttachment((String) param.get("attachment"));
+        if (param.get("status") != null) plan.setStatus(mapStatusToDb(param.get("status").toString()));
+        if (param.get("createTime") != null && !"".equals(param.get("createTime"))) {
+            try {
+                String dateStr = param.get("createTime").toString();
+                if (dateStr.contains("T")) dateStr = dateStr.replace("T", " ");
+                if (dateStr.contains(".")) dateStr = dateStr.substring(0, dateStr.indexOf("."));
+                if (dateStr.length() == 10) dateStr += " 00:00:00";
+                plan.setCreateTime(java.sql.Timestamp.valueOf(dateStr));
+            } catch (Exception e) {
+                // ignore
+            }
+        }
+        plan.setUpdateDate(new Date());
+        planService.updateById(plan);
+        // 明细同步更新
         if (param.get("details") instanceof List) {
-            List<Map<String, Object>> details = (List<Map<String, Object>>) param.get("details");
+            // 先删除原有明细
             detailService.remove(new QueryWrapper<TryProcurementDetail>().eq("plan_id", plan.getId()));
+            // 再插入新明细
+            List<Map<String, Object>> details = (List<Map<String, Object>>) param.get("details");
             for (Map<String, Object> d : details) {
                 TryProcurementDetail detail = new TryProcurementDetail();
                 detail.setPlanId(plan.getId());
-                // 字段映射健壮处理
-                detail.setItemName(
-                    d.get("itemName") != null ? d.get("itemName").toString() :
-                    (d.get("name") != null ? d.get("name").toString() : null)
-                );
+                detail.setItemName(d.get("itemName") != null ? d.get("itemName").toString() : (d.get("name") != null ? d.get("name").toString() : null));
                 detail.setCategory(d.get("category") != null ? d.get("category").toString() : null);
                 detail.setMethod(d.get("method") != null ? d.get("method").toString() : null);
                 if (d.get("estimate") != null && !"".equals(d.get("estimate"))) {
@@ -199,14 +210,14 @@ public class TryProcurementPlanController {
             }
         }
         Map<String, Object> resp = new HashMap<>();
-        if (updated) {
-            resp.put("code", 0);
-            resp.put("msg", "success");
-        } else {
-            resp.put("code", 1);
-            resp.put("msg", "更新失败，数据不存在或已被删除");
-        }
+        resp.put("code", 0);
+        resp.put("msg", "success");
         return resp;
+    }
+
+    @PostMapping("/update")
+    public Object updateByPost(@RequestBody Map<String, Object> param) {
+        return update(param);
     }
 
     @DeleteMapping("/{id}")
