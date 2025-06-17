@@ -44,7 +44,7 @@ procurement-plan-backend/
 
 ### 1. 克隆项目
 ```bash
-git clone [项目地址]
+git clone https://github.com/emmm1882/procurement-plan-backend
 ```
 
 ### 2. 配置数据库
@@ -68,7 +68,7 @@ mvn spring-boot:run
 ```
 
 ### 5. 访问接口文档
-启动成功后访问：http://localhost:8080/swagger-ui.html
+启动成功后访问：http://localhost:8080/api/swagger-ui.html
 
 ## 主要功能
 1. 采购计划查询列表
